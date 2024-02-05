@@ -1,9 +1,28 @@
 import { useState } from "react";
 
-export default function Board() {
-  const [xIsNext, setXIsNext] = useState(true);
-  const [squares, setSquares] = useState(Array(9).fill(null));
+// If you have extra time or want to practice your new React skills,
+// here are some ideas for improvements that you could make to the tic-tac-toe game,
+// listed in order of increasing difficulty:
 
+// 1. Remove history buttons from the move history list.
+// 2. For the current move only, show “You are at move #…” instead of a button.
+// 3. Rewrite Board to use two loops to make the squares instead of hardcoding them.
+// 4. Add a toggle button that lets you sort the moves in either ascending
+// or descending order.
+// 5. When someone wins, highlight the three squares that caused the win
+// (and when no one wins, display a message about the result being a draw).
+// 6. Display the location for each move in the format (row, col) in the move
+// history list.
+
+function Square({ value, onSquareClick }) {
+  return (
+    <button className="square" onClick={onSquareClick}>
+      {value}
+    </button>
+  );
+}
+
+function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -14,8 +33,8 @@ export default function Board() {
     } else {
       nextSquares[i] = "O";
     }
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
+
+    onPlay(nextSquares);
   }
 
   const winner = calculateWinner(squares);
@@ -48,11 +67,47 @@ export default function Board() {
   );
 }
 
-function Square({ value, onSquareClick }) {
+export default function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove];
+
+  function handlePlay(nextSquares) {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0) {
+      description = "Go to move #" + move;
+    } else {
+      description = "Go to game start";
+    }
+
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+
   return (
-    <button className="square" onClick={onSquareClick}>
-      {value}
-    </button>
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <div>{/* status */}</div>
+        <ol>{moves}</ol>
+      </div>
+    </div>
   );
 }
 
