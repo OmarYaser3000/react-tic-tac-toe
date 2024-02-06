@@ -4,9 +4,9 @@ import { useState } from "react";
 // here are some ideas for improvements that you could make to the tic-tac-toe game,
 // listed in order of increasing difficulty:
 
-// 1. Remove history buttons from the move history list.
-// 2. For the current move only, show “You are at move #…” instead of a button.
-// 3. Rewrite Board to use two loops to make the squares instead of hardcoding them.
+// 1. Remove history buttons from the move history list. ✔️
+// 2. For the current move only, show “You are at move #…” instead of a button. ✔️
+// 3. Rewrite Board to use two loops to make the squares instead of hardcoding them. (in my project)
 // 4. Add a toggle button that lets you sort the moves in either ascending
 // or descending order.
 // 5. When someone wins, highlight the three squares that caused the win
@@ -69,8 +69,8 @@ function Board({ xIsNext, squares, onPlay }) {
 
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0;
+  const [currentMove, setCurrentMove] = useState(0); //used to get the turns & current board
+  const xIsNext = currentMove % 2 === 0; // returns true or false
   const currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
@@ -83,7 +83,7 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  const moves = history.slice(0, currentMove + 1).map((squares, move) => {
     let description;
     if (move > 0) {
       description = "Go to move #" + move;
@@ -92,9 +92,15 @@ export default function Game() {
     }
 
     return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
+      <div key={move}>
+        {move == currentMove ? (
+          <p>You are at move {move}</p>
+        ) : (
+          <li key={move}>
+            <button onClick={() => jumpTo(move)}>{description}</button>
+          </li>
+        )}
+      </div>
     );
   });
 
@@ -104,7 +110,9 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <div>{/* status */}</div>
+        <div>
+          <button type="button">button</button>
+        </div>
         <ol>{moves}</ol>
       </div>
     </div>
