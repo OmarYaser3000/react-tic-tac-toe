@@ -8,7 +8,7 @@ import { useState } from "react";
 // 2. For the current move only, show “You are at move #…” instead of a button. ✔️
 // 3. Rewrite Board to use two loops to make the squares instead of hardcoding them. (in my project)
 // 4. Add a toggle button that lets you sort the moves in either ascending
-// or descending order.
+// or descending order. ✔️
 // 5. When someone wins, highlight the three squares that caused the win
 // (and when no one wins, display a message about the result being a draw).
 // 6. Display the location for each move in the format (row, col) in the move
@@ -38,9 +38,12 @@ function Board({ xIsNext, squares, onPlay }) {
   }
 
   const winner = calculateWinner(squares);
+  let winnerBoxes = [];
   let status;
   if (winner) {
-    status = `Winner: ${winner}`;
+    status = `Winner: ${winner[0]}`;
+    console.log(winner.slice(1));
+    winnerBoxes = winner.slice(1);
   } else {
     status = `Next player: ${xIsNext ? "X" : "O"}`;
   }
@@ -49,7 +52,11 @@ function Board({ xIsNext, squares, onPlay }) {
     <>
       <div className="status">{status}</div>
       <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
+        <Square
+          value={squares[0]}
+          onSquareClick={() => handleClick(0)}
+          className={winnerBoxes.includes(0) ? "winner-box" : ""}
+        />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
         <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
       </div>
@@ -70,6 +77,7 @@ function Board({ xIsNext, squares, onPlay }) {
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0); //used to get the turns & current board
+  const [isAscending, setIsAscending] = useState(true); //used to sort the moves
   const xIsNext = currentMove % 2 === 0; // returns true or false
   const currentSquares = history[currentMove];
 
@@ -83,26 +91,46 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.slice(0, currentMove + 1).map((squares, move) => {
-    let description;
-    if (move > 0) {
-      description = "Go to move #" + move;
-    } else {
-      description = "Go to game start";
-    }
+  function toggleOrder() {
+    setIsAscending(!isAscending);
+  }
 
-    return (
-      <div key={move}>
-        {move == currentMove ? (
-          <p>You are at move {move}</p>
+  const moves = isAscending
+    ? history.slice(0, currentMove + 1).map((squares, move) => {
+        let description;
+        if (move > 0) {
+          description = "Go to move #" + move;
+        } else {
+          description = "Go to game start";
+        }
+
+        return move == currentMove ? (
+          <p key={move}>You are at move {move}</p>
         ) : (
           <li key={move}>
             <button onClick={() => jumpTo(move)}>{description}</button>
           </li>
-        )}
-      </div>
-    );
-  });
+        );
+      })
+    : history
+        .slice(0, currentMove + 1)
+        .map((squares, move) => {
+          let description;
+          if (move > 0) {
+            description = "Go to move #" + move;
+          } else {
+            description = "Go to game start";
+          }
+
+          return move == currentMove ? (
+            <p key={move}>You are at move {move}</p>
+          ) : (
+            <li key={move}>
+              <button onClick={() => jumpTo(move)}>{description}</button>
+            </li>
+          );
+        })
+        .reverse();
 
   return (
     <div className="game">
@@ -111,7 +139,9 @@ export default function Game() {
       </div>
       <div className="game-info">
         <div>
-          <button type="button">button</button>
+          <button type="button" onClick={toggleOrder}>
+            Toggle Buttons Order
+          </button>
         </div>
         <ol>{moves}</ol>
       </div>
@@ -133,7 +163,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return [squares[a], a, b, c];
     }
   }
   return null;
