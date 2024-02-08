@@ -10,7 +10,7 @@ import { useState } from "react";
 // 4. Add a toggle button that lets you sort the moves in either ascending
 // or descending order. ✔️
 // 5. When someone wins, highlight the three squares that caused the win ✔️
-// (and when no one wins, display a message about the result being a draw).
+// (and when no one wins, display a message about the result being a draw). ✔️
 // 6. Display the location for each move in the format (row, col) in the move
 // history list.
 
@@ -46,13 +46,21 @@ function Board({ xIsNext, squares, onPlay }) {
     status = `Winner: ${winner[0]}`;
     console.log(winner.slice(1));
     winnerBoxes = winner.slice(1);
+  } else if (!squares.includes(null)) {
+    status = "Draw!!";
   } else {
     status = `Next player: ${xIsNext ? "X" : "O"}`;
   }
 
   return (
     <>
-      <div className="status">{status}</div>
+      <div
+        className="status"
+        style={{
+          backgroundColor: status == "Draw!!" ? "red" : "",
+        }}>
+        {status}
+      </div>
       <div className="board-row">
         <Square
           value={squares[0]}
