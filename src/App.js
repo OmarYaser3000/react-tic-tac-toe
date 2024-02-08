@@ -12,7 +12,7 @@ import { useState } from "react";
 // 5. When someone wins, highlight the three squares that caused the win ✔️
 // (and when no one wins, display a message about the result being a draw). ✔️
 // 6. Display the location for each move in the format (row, col) in the move
-// history list.
+// history list. ✔️
 
 function Square({ value, onSquareClick, winner }) {
   return (
@@ -125,37 +125,29 @@ export default function Game() {
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    if (history) {
-      let index;
-      let moveObj;
-      if (history.length >= 2) {
-        const lastTwoBoards = history.slice(-2);
-        const lastBoard = lastTwoBoards[0];
-        const secondLastBoard = lastTwoBoards[1];
-        index = diffIndexes(secondLastBoard, lastBoard)[0];
-        moveObj = getRowAndColumn(index);
-        setMovesList([...movesList, moveObj]);
-      } else if (history.length == 1) {
-        index = history[0].findIndex((v) => v !== null);
-        moveObj = getRowAndColumn(index);
-        setMovesList([...movesList, moveObj]);
-      }
-    }
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+
+    let index;
+    let moveObj;
+    if (nextHistory.length >= 2) {
+      const lastTwoBoards = nextHistory.slice(-2);
+      const lastBoard = lastTwoBoards[1];
+      const secondLastBoard = lastTwoBoards[0];
+      index = diffIndexes(secondLastBoard, lastBoard)[0];
+      moveObj = getRowAndColumn(index);
+    } else if (nextHistory.length == 1) {
+      index = nextHistory[0].findIndex((v) => v !== null);
+      moveObj = getRowAndColumn(index);
+    }
+    if (moveObj) {
+      setMovesList((prev) => [...prev, moveObj]);
+    }
   }
 
   function jumpTo(nextMove) {
-    console.log(`################`);
-    console.log(moves);
     setCurrentMove(nextMove);
-    const moves = movesList.slice(0, nextMove);
-    console.log(moves);
-    setMovesList(moves);
-  }
-
-  function toggleOrder() {
-    setIsAscending(!isAscending);
+    setMovesList(movesList.slice(0, nextMove));
   }
 
   function diffIndexes(a, b) {
@@ -191,15 +183,6 @@ export default function Game() {
     return { row, col };
   }
 
-  // function getMoveDescription(history) {
-  //   const lastTwoBoards = history.slice(-2);
-  //   const lastBoard = lastTwoBoards[0];
-  //   const secondLastBoard = lastTwoBoards[1];
-  //   const index = diffIndexes(secondLastBoard, lastBoard)[0];
-  //   const moveObj = getRowAndColumn(index);
-  //   setMovesList([...movesList, moveObj]);
-  // }
-
   const moves = isAscending
     ? history.slice(0, currentMove + 1).map((squares, move) => {
         let description;
@@ -222,7 +205,7 @@ export default function Game() {
         .map((squares, move) => {
           let description;
           if (move > 0) {
-            description = "Go to move #" + move;
+            description = `Go to move: row ${movesList[move]?.row}, col ${movesList[move]?.col}`;
           } else {
             description = "Go to game start";
           }
@@ -244,7 +227,7 @@ export default function Game() {
       </div>
       <div className="game-info">
         <div>
-          <button type="button" onClick={toggleOrder}>
+          <button type="button" onClick={() => setIsAscending(!isAscending)}>
             Toggle Buttons Order
           </button>
         </div>
