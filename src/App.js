@@ -9,14 +9,16 @@ import { useState } from "react";
 // 3. Rewrite Board to use two loops to make the squares instead of hardcoding them. (in my project)
 // 4. Add a toggle button that lets you sort the moves in either ascending
 // or descending order. ✔️
-// 5. When someone wins, highlight the three squares that caused the win
+// 5. When someone wins, highlight the three squares that caused the win ✔️
 // (and when no one wins, display a message about the result being a draw).
 // 6. Display the location for each move in the format (row, col) in the move
 // history list.
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, winner }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button
+      className={`square ${winner ? "winner-box" : ""}`}
+      onClick={onSquareClick}>
       {value}
     </button>
   );
@@ -55,20 +57,52 @@ function Board({ xIsNext, squares, onPlay }) {
         <Square
           value={squares[0]}
           onSquareClick={() => handleClick(0)}
-          className={winnerBoxes.includes(0) ? "winner-box" : ""}
+          winner={winnerBoxes.includes(0)}
         />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+        <Square
+          value={squares[1]}
+          onSquareClick={() => handleClick(1)}
+          winner={winnerBoxes.includes(1)}
+        />
+        <Square
+          value={squares[2]}
+          onSquareClick={() => handleClick(2)}
+          winner={winnerBoxes.includes(2)}
+        />
       </div>
       <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+        <Square
+          value={squares[3]}
+          onSquareClick={() => handleClick(3)}
+          winner={winnerBoxes.includes(3)}
+        />
+        <Square
+          value={squares[4]}
+          onSquareClick={() => handleClick(4)}
+          winner={winnerBoxes.includes(4)}
+        />
+        <Square
+          value={squares[5]}
+          onSquareClick={() => handleClick(5)}
+          winner={winnerBoxes.includes(5)}
+        />
       </div>
       <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+        <Square
+          value={squares[6]}
+          onSquareClick={() => handleClick(6)}
+          winner={winnerBoxes.includes(6)}
+        />
+        <Square
+          value={squares[7]}
+          onSquareClick={() => handleClick(7)}
+          winner={winnerBoxes.includes(7)}
+        />
+        <Square
+          value={squares[8]}
+          onSquareClick={() => handleClick(8)}
+          winner={winnerBoxes.includes(8)}
+        />
       </div>
     </>
   );
