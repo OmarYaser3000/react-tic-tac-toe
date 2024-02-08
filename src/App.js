@@ -44,7 +44,6 @@ function Board({ xIsNext, squares, onPlay }) {
   let status;
   if (winner) {
     status = `Winner: ${winner[0]}`;
-    console.log(winner.slice(1));
     winnerBoxes = winner.slice(1);
   } else if (!squares.includes(null)) {
     status = "Draw!!";
@@ -120,28 +119,92 @@ export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0); //used to get the turns & current board
   const [isAscending, setIsAscending] = useState(true); //used to sort the moves
+  const [movesList, setMovesList] = useState([]); //used to get the moves
   const xIsNext = currentMove % 2 === 0; // returns true or false
   const currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    if (history) {
+      let index;
+      let moveObj;
+      if (history.length >= 2) {
+        const lastTwoBoards = history.slice(-2);
+        const lastBoard = lastTwoBoards[0];
+        const secondLastBoard = lastTwoBoards[1];
+        index = diffIndexes(secondLastBoard, lastBoard)[0];
+        moveObj = getRowAndColumn(index);
+        setMovesList([...movesList, moveObj]);
+      } else if (history.length == 1) {
+        index = history[0].findIndex((v) => v !== null);
+        moveObj = getRowAndColumn(index);
+        setMovesList([...movesList, moveObj]);
+      }
+    }
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
 
   function jumpTo(nextMove) {
+    console.log(`################`);
+    console.log(moves);
     setCurrentMove(nextMove);
+    const moves = movesList.slice(0, nextMove);
+    console.log(moves);
+    setMovesList(moves);
   }
 
   function toggleOrder() {
     setIsAscending(!isAscending);
   }
 
+  function diffIndexes(a, b) {
+    let indexes = [];
+    a.forEach((v, i) => {
+      if (v !== b[i]) {
+        indexes.push(i);
+      }
+    });
+    return indexes;
+  }
+
+  function getRowAndColumn(index) {
+    let row;
+    let col;
+    // if index between 0 & 2 row = 1, between 3 & 5 row = 2, between 6 & 8 row = 3
+    if (index >= 0 && index <= 2) {
+      row = 1;
+    } else if (index >= 3 && index <= 5) {
+      row = 2;
+    } else if (index >= 6 && index <= 8) {
+      row = 3;
+    }
+    // if index is 0 or 3 or 6 col = 1, if index is 1 or 4 or 7 col = 2, if index is 2 or 5
+    // or 8 col = 3
+    if (index == 0 || index == 3 || index == 6) {
+      col = 1;
+    } else if (index == 1 || index == 4 || index == 7) {
+      col = 2;
+    } else if (index == 2 || index == 5 || index == 8) {
+      col = 3;
+    }
+    return { row, col };
+  }
+
+  // function getMoveDescription(history) {
+  //   const lastTwoBoards = history.slice(-2);
+  //   const lastBoard = lastTwoBoards[0];
+  //   const secondLastBoard = lastTwoBoards[1];
+  //   const index = diffIndexes(secondLastBoard, lastBoard)[0];
+  //   const moveObj = getRowAndColumn(index);
+  //   setMovesList([...movesList, moveObj]);
+  // }
+
   const moves = isAscending
     ? history.slice(0, currentMove + 1).map((squares, move) => {
         let description;
         if (move > 0) {
-          description = "Go to move #" + move;
+          description = `Go to move: row ${movesList[move]?.row}, col ${movesList[move]?.col}`;
         } else {
           description = "Go to game start";
         }
